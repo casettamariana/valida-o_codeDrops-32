@@ -3,17 +3,15 @@ const fields = document.querySelectorAll("[required]");
 //console.log(fields);
 
 
-function customValidation(event){
-    const field = event.target;
-
+function ValidateField(field){
     // lógiva para verificar se existem erros
-    function verifyErrors(){
+    function verifyErrors() {
         let foundError = false;
 
-        for(let error in field.validity){
+        for (let error in field.validity) {
             // se não for customError
             // então verifica se tem erro
-            if(error != "customError" && field.validity[error]){
+            if (field.validity[error] && !field.validity.valid) {
                 foundError = error;
             }
         }
@@ -21,41 +19,87 @@ function customValidation(event){
         return foundError;
     }
 
-    const error = verifyErrors();
-    console.log("Error Exists: ", error);
+    function customMessage(typeError){
+        const messages = {
+            text: {
+                valueMissing: "Por favor, preencha este campo"
+            },
+            email: {
+                valueMissing: "Email é obrigatório",
+                typeMismatch: "Por favor, preencha um email válido"
+            }
+        }
 
+        return messages[field.type][typeError];
+    }
+    
+    function setcustomMessage(message) {
+        const spanError = field.parentNode.querySelector("span.error");
 
-    if(error) {
-        // trocar mensagem de required
-        field.setCustomValidity("Esse campo é obrigatório");
-    } else {
-        field.setCustomValidity("");
+        if(message){
+            spanError.classList.add("active");
+            spanError.innerHTML = message;
+        } else {
+            spanError.classList.remove("active");
+            spanError.innerHTML = "";
+        }
+        
+        
     }
 
+    return function(){
+
+        const error = verifyErrors();
+        
+        if (verifyErrors() ) {
+            const message = customMessage(error);
+            field.style.borderColor = "red";
+            setcustomMessage(message);
+        } else {
+            field.style.borderColor = "green";
+            setcustomMessage();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function customValidation(event) {
     
+    const field = event.target;
+
+
+    const error = ValidateField(field);
+    const validation = ValidateField(field)    
+    
+    validation()
+
 }
 
 // verificar se tem algum campo inválido
-for(field of fields){
-    field.addEventListener("invalid", customValidation);
+for (field of fields) {
+    field.addEventListener("invalid", event => {
+        // eliminar o bubble
+        event.preventDefault();
+
+        customValidation(event);
+    });
+    field.addEventListener("blur", customValidation);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 document.querySelector("form").addEventListener("submit", event => {
     console.log("Enviar o formulário");
