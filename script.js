@@ -62,22 +62,6 @@ function ValidateField(field){
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function customValidation(event) {
     
     const field = event.target;
